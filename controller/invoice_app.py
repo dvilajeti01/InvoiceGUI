@@ -3,10 +3,11 @@ from datetime import datetime
 import calendar as cl
 
 from views.calendar_view.calendar_view import CalendarView
-from views.calendar_view.calendar_section import CalendarSection
 from views.entries_view.entries_view import EntriesView
 
 from models.entry import Entry
+
+from views.entry_builder_view.entry_builder_view import EntryBuilderView
 
 
 class InvoiceApp(tk.Frame):
@@ -30,6 +31,7 @@ class InvoiceApp(tk.Frame):
         self.calendar_view.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
         self.entries_view = None
+        self.data_entry = None
 
     def hover_in(self, event):
         # Changes background color of calendar block to
@@ -80,15 +82,38 @@ class InvoiceApp(tk.Frame):
         self.calendar_view.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
     def new_entry(self, event):
+
+        self.data_entry = EntryBuilderView(self, self)
+
+        self.data_entry.wait_visibility()
+        self.data_entry.grab_set()
+
+    def add_entry(self, event):
+        date = self.data_entry.date_entry.date_entry.get()
+        desc = self.data_entry.dsc_entry.desc_entry.get()
+        qnty = self.data_entry.rate_entry.rate_entry.get()
+        rate = self.data_entry.rate_entry.rate_entry.get()
+
+        entry = (date, desc, qnty, rate)
+        item_num = len(
+            self.entries_view.entries_list.entries_lst.get_children())
+        try:
+            self.entries[self.current_block]
+        except KeyError:
+            self.entries[self.current_block] = []
+
+        self.entries[self.current_block].append(entry)
         self.entries_view.entries_list.entries_lst.insert(
-            '', 'end', text="1", values=("2020-11-17", "Labor", 8, 25))
+            '', 'end', text=item_num+1, values=(entry))
+
+        print("Item Added")
 
     def delete_entry(self, event):
         item = self.entries_view.entries_list.entries_lst.selection()
-        try:
-            self.entries_view.entries_list.entries_lst.delete(item)
-        except:
-            print("Nothin to delete here!!")
+        entry = self.entries_view.entries_list.entries_lst.item(item, "values")
+
+        self.entries[self.current_block].remove(entry)
+        self.entries_view.entries_list.entries_lst.delete(item)
 
     def enter_entries_view(self, event):
 
@@ -110,16 +135,6 @@ class InvoiceApp(tk.Frame):
             side=tk.TOP, fill=tk.BOTH, expand=True)
 
     def return_to_calendar(self, event):
-
-        entries = []
-
-        # Save entries from the view
-        for child in self.entries_view.entries_list.entries_lst.get_children():
-            entries.append(
-                self.entries_view.entries_list.entries_lst.item(child)["values"])
-
-        # Store them inside corresponding dict key
-        self.entries[self.current_block] = entries
 
         self.current_block = None
         # Create calendar view

@@ -33,5 +33,5 @@ class EntriesList(tk.Frame):
         i = 1
         if entries is not None:
             for entry in entries:
-                self.entries_lst.insert('', 'end', text="1", values=entry)
+                self.entries_lst.insert('', 'end', text=i, values=entry)
                 i = i + 1
