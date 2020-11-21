@@ -115,8 +115,11 @@ class InvoiceApp(tk.Frame):
         item = self.entries_view.entries_list.entries_lst.selection()
         entry = self.entries_view.entries_list.entries_lst.item(item, "values")
 
-        self.entries[self.current_block].remove(entry)
-        self.entries_view.entries_list.entries_lst.delete(item)
+        try:
+            self.entries[self.current_block].remove(entry)
+            self.entries_view.entries_list.entries_lst.delete(item)
+        except KeyError:
+            print("Nothing to Delete!")
 
     def enter_entries_view(self, event):
 
