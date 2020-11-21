@@ -91,7 +91,7 @@ class InvoiceApp(tk.Frame):
     def add_entry(self, event):
         date = self.data_entry.date_entry.date_entry.get()
         desc = self.data_entry.dsc_entry.desc_entry.get()
-        qnty = self.data_entry.rate_entry.rate_entry.get()
+        qnty = self.data_entry.qnty_entry.qnty_entry.get()
         rate = self.data_entry.rate_entry.rate_entry.get()
 
         entry = (date, desc, qnty, rate)
@@ -106,7 +106,10 @@ class InvoiceApp(tk.Frame):
         self.entries_view.entries_list.entries_lst.insert(
             '', 'end', text=item_num+1, values=(entry))
 
-        print("Item Added")
+        self.data_entry.date_entry.date_entry.delete(0, "end")
+        self.data_entry.dsc_entry.desc_entry.delete(0, "end")
+        self.data_entry.qnty_entry.qnty_entry.delete(0, "end")
+        self.data_entry.rate_entry.rate_entry.delete(0, "end")
 
     def delete_entry(self, event):
         item = self.entries_view.entries_list.entries_lst.selection()
