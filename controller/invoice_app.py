@@ -4,10 +4,9 @@ import calendar as cl
 
 from views.calendar_view.calendar_view import CalendarView
 from views.entries_view.entries_view import EntriesView
+from views.entry_builder_view.entry_builder_view import EntryBuilderView
 
 from models.entry import Entry
-
-from views.entry_builder_view.entry_builder_view import EntryBuilderView
 
 
 class InvoiceApp(tk.Frame):
@@ -23,7 +22,7 @@ class InvoiceApp(tk.Frame):
 
         self.current_block = None
 
-        self.entries = {}
+        self.entries = {str: [Entry]}
 
         # CalendarView displaying todays date
         self.calendar_view = CalendarView(
