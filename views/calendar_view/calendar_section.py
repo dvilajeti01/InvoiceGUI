@@ -59,8 +59,6 @@ class CalendarSection(tk.Frame):
                         row=i,
                         col=j,
                         relief=tk.RIDGE,
-                        height=100,
-                        width=100,
                         borderwidth=1)
                     calendar_block.grid(row=i, column=j, sticky="nsew")
 

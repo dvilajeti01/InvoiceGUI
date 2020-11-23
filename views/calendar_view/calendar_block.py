@@ -2,6 +2,9 @@ import tkinter as tk
 
 BG_COLOR = "white"
 
+BL_WIDTH = 100
+BL_HEIGHT = 100
+
 
 class CalendarBlock(tk.Frame):
     def __init__(self, parent, controller, block_id, row, col, *args, **kwargs):
@@ -13,8 +16,8 @@ class CalendarBlock(tk.Frame):
         day = block_id.split("_")[2]
 
         # Defines minimum dimensions for the calendar
-        self.rowconfigure(row, weight=1, minsize=100)
-        self.columnconfigure(col, weight=1, minsize=100)
+        self.rowconfigure(row, weight=1, minsize=BL_HEIGHT)
+        self.columnconfigure(col, weight=1, minsize=BL_WIDTH)
 
         self["bg"] = BG_COLOR
 

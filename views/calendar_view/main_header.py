@@ -10,7 +10,7 @@ class MainHeader(tk.Frame):
         # Header displays month,year being currently displayed
         header_font = ("Helvetica", 20, "bold")
         self.header_lbl = tk.Label(
-            self, text=f"{cl.month_name[month]}, {year}", font=header_font, width=100)
+            self, text=f"{cl.month_name[month]}, {year}", font=header_font)
         self.header_lbl.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
         # Displays previous month
