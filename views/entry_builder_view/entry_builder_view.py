@@ -8,11 +8,11 @@ from views.entry_builder_view.entry_footer import EntryFooter
 
 
 class EntryBuilderView(tk.Toplevel):
-    def __init__(self, parent, controller, *args, **kwargs):
+    def __init__(self, parent, controller, date, *args, **kwargs):
         # Call parent init
         tk.Toplevel.__init__(self, parent, *args, **kwargs)
 
-        self.date_entry = EntryDate(self, controller)
+        self.date_entry = EntryDate(self, controller, date)
         self.date_entry.pack(side=tk.TOP, anchor="w")
 
         self.dsc_entry = EntryDesc(self, controller)
