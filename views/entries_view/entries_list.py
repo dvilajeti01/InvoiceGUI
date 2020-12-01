@@ -3,7 +3,7 @@ from tkinter import ttk
 
 
 class EntriesList(tk.Frame):
-    def __init__(self, parent, controller, *args, **kwargs):
+    def __init__(self, parent, controller, entries, *args, **kwargs):
         # Call parent init
         tk.Frame.__init__(self, parent, *args, **kwargs)
 
@@ -29,3 +29,9 @@ class EntriesList(tk.Frame):
         self.entries_scrl.pack(side=tk.LEFT, fill=tk.BOTH)
 
         self.entries_lst.configure(yscrollcommand=self.entries_scrl.set)
+
+        i = 1
+        if entries is not None:
+            for entry in entries:
+                self.entries_lst.insert('', 'end', text=i, values=entry)
+                i = i + 1

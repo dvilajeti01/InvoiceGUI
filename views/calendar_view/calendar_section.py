@@ -50,7 +50,7 @@ class CalendarSection(tk.Frame):
                     # Each block is to be identified by a unique ID
                     # The ID is made up by the year,month, and day
                     # delimited by '_'
-                    block_id = f"{block_year}_{block_month}_{block_day}"
+                    block_id = f"{block_month}_{block_day}_{block_year}"
 
                     calendar_block = CalendarBlock(
                         self,
@@ -59,8 +59,6 @@ class CalendarSection(tk.Frame):
                         row=i,
                         col=j,
                         relief=tk.RIDGE,
-                        height=100,
-                        width=100,
                         borderwidth=1)
                     calendar_block.grid(row=i, column=j, sticky="nsew")
 

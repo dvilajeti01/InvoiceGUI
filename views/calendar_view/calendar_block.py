@@ -2,6 +2,9 @@ import tkinter as tk
 
 BG_COLOR = "white"
 
+BL_WIDTH = 100
+BL_HEIGHT = 100
+
 
 class CalendarBlock(tk.Frame):
     def __init__(self, parent, controller, block_id, row, col, *args, **kwargs):
@@ -10,11 +13,11 @@ class CalendarBlock(tk.Frame):
 
         self.block_id = block_id
 
-        day = block_id.split("_")[2]
+        day = block_id.split("_")[1]
 
         # Defines minimum dimensions for the calendar
-        self.rowconfigure(row, weight=1, minsize=100)
-        self.columnconfigure(col, weight=1, minsize=100)
+        self.rowconfigure(row, weight=1, minsize=BL_HEIGHT)
+        self.columnconfigure(col, weight=1, minsize=BL_WIDTH)
 
         self["bg"] = BG_COLOR
 
@@ -23,6 +26,6 @@ class CalendarBlock(tk.Frame):
             self, text=day, fg="black", bg=BG_COLOR)
         self.date_lbl.grid(row=row, column=col, sticky="nw")
 
-        # Label displays hours worked on the day represented by calendar block
-        self.time_lbl = tk.Label(self, text="", bg=BG_COLOR)
-        self.time_lbl.grid(row=row, column=col)
+        # Label indicates if there are any active entries listed for this date
+        self.active_lbl = tk.Label(self, text="", bg=BG_COLOR)
+        self.active_lbl.grid(row=row, column=col)
