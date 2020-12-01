@@ -15,6 +15,7 @@ class CalendarMenu(tk.Frame):
         self.generate_btn = tk.Button(
             self, text="Generate", relief=tk.RAISED, fg="green")
         self.generate_btn.pack(side=tk.TOP, fill=tk.X)
+        self.generate_btn.bind("<Button-1>", controller.generate_invoice)
 
         # Button to set invoice generating settings
         self.settings_btn = tk.Button(
