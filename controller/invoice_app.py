@@ -1,12 +1,14 @@
 import tkinter as tk
 from datetime import datetime
 import calendar as cl
+import pandas as pd
+import json
 
 from views.calendar_view.calendar_view import CalendarView
 from views.entries_view.entries_view import EntriesView
 from views.entry_builder_view.entry_builder_view import EntryBuilderView
 
-from models.entry import Entry
+from models.entry import Entry, EntryEncoder
 
 
 class InvoiceApp(tk.Frame):
@@ -22,12 +24,20 @@ class InvoiceApp(tk.Frame):
 
         self.current_block = None
 
-        self.entries = {str: [Entry]}
+        self.entries = {}
 
         # CalendarView displaying todays date
         self.calendar_view = CalendarView(
             self, self, self.today, self.today.month, self.today.year)
         self.calendar_view.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+
+        for block in self.calendar_view.calendar_section.winfo_children():
+            try:
+                if len(self.entries[block.block_id]) > 0:
+                    block.active_lbl["fg"] = "Green"
+                    block.active_lbl["text"] = "*"
+            except KeyError:
+                pass
 
         self.entries_view = None
         self.data_entry = None
@@ -37,16 +47,18 @@ class InvoiceApp(tk.Frame):
         # notify users they are pointing to calendar block
 
         event.widget["bg"] = "#D7DBDD"
-        event.widget.date_lbl["bg"] = "#D7DBDD"
-        event.widget.time_lbl["bg"] = "#D7DBDD"
+
+        for child in event.widget.winfo_children():
+            child["bg"] = "#D7DBDD"
 
     def hover_out(self, event):
         # Reverts background color of calendar block to
         # notify users they are no longer pointing to calendar block
 
         event.widget["bg"] = "white"
-        event.widget.date_lbl["bg"] = "white"
-        event.widget.time_lbl["bg"] = "white"
+
+        for child in event.widget.winfo_children():
+            child["bg"] = "white"
 
     def prev_month(self, event):
         self.month = self.month - 1
@@ -64,6 +76,14 @@ class InvoiceApp(tk.Frame):
         self.calendar_view = new_cal_view
         self.calendar_view.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
+        for block in self.calendar_view.calendar_section.winfo_children():
+            try:
+                if len(self.entries[block.block_id]) > 0:
+                    block.active_lbl["fg"] = "Green"
+                    block.active_lbl["text"] = "*"
+            except KeyError:
+                pass
+
     def next_month(self, event):
         self.month = self.month + 1
 
@@ -80,10 +100,19 @@ class InvoiceApp(tk.Frame):
         self.calendar_view = new_cal_view
         self.calendar_view.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
+        for block in self.calendar_view.calendar_section.winfo_children():
+            try:
+                if len(self.entries[block.block_id]) > 0:
+                    block.active_lbl["fg"] = "Green"
+                    block.active_lbl["text"] = "*"
+            except KeyError:
+                pass
+
     def new_entry(self, event):
 
-        self.data_entry = EntryBuilderView(self, self)
+        date = self.current_block.replace('_', '/')
 
+        self.data_entry = EntryBuilderView(self, self, date)
         self.data_entry.wait_visibility()
         self.data_entry.grab_set()
 
@@ -93,7 +122,7 @@ class InvoiceApp(tk.Frame):
         qnty = self.data_entry.qnty_entry.qnty_entry.get()
         rate = self.data_entry.rate_entry.rate_entry.get()
 
-        entry = (date, desc, qnty, rate)
+        entry = Entry(date, desc, qnty, rate)
         item_num = len(
             self.entries_view.entries_list.entries_lst.get_children())
         try:
@@ -103,7 +132,7 @@ class InvoiceApp(tk.Frame):
 
         self.entries[self.current_block].append(entry)
         self.entries_view.entries_list.entries_lst.insert(
-            '', 'end', text=item_num+1, values=(entry))
+            '', 'end', text=item_num+1, values=(entry.to_tuple()))
 
         self.data_entry.date_entry.date_entry.delete(0, "end")
         self.data_entry.dsc_entry.desc_entry.delete(0, "end")
@@ -112,12 +141,15 @@ class InvoiceApp(tk.Frame):
 
     def delete_entry(self, event):
         item = self.entries_view.entries_list.entries_lst.selection()
-        entry = self.entries_view.entries_list.entries_lst.item(item, "values")
 
-        try:
+        if item != ():
+            entry_values = self.entries_view.entries_list.entries_lst.item(
+                item, "values")
+
+            entry = Entry.from_tuple(entry_values)
             self.entries[self.current_block].remove(entry)
             self.entries_view.entries_list.entries_lst.delete(item)
-        except KeyError:
+        else:
             print("Nothing to Delete!")
 
     def enter_entries_view(self, event):
@@ -146,9 +178,47 @@ class InvoiceApp(tk.Frame):
         self.calendar_view = CalendarView(
             self, self, self.today, self.month, self.year)
 
+        for block in self.calendar_view.calendar_section.winfo_children():
+            try:
+                if len(self.entries[block.block_id]) > 0:
+                    block.active_lbl["fg"] = "Green"
+                    block.active_lbl["text"] = "*"
+            except KeyError:
+                pass
+
         # Destroy current entries view
         self.entries_view.destroy()
         self.entries_view = None
 
         # Display calendar view
         self.calendar_view.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+
+    def generate_invoice(self, event):
+        invoice = []
+
+        for block in self.entries:
+            for entry in self.entries[block]:
+                invoice.append(entry)
+
+        if invoice:
+            invoiceJOSNData = json.dumps(invoice, indent=4, cls=EntryEncoder)
+            print(invoiceJOSNData)
+
+            invoice_frame = pd.read_json(invoiceJOSNData)
+
+            invoice_frame_sorted = invoice_frame.sort_values(
+                by='date', ascending=True)
+
+            invoice_frame_sorted.loc[:, "amount"] = invoice_frame_sorted["quantity"] * \
+                invoice_frame_sorted["rate"]
+
+            columns_to_total = ["quantity", "amount"]
+            invoice_frame_sorted.loc["Total", :] = invoice_frame_sorted[columns_to_total].sum(
+                axis=0, numeric_only=True)
+            invoice_frame_sorted.fillna("")
+
+            print(invoice_frame_sorted)
+            invoice_frame_sorted.to_csv(
+                "/mnt/c/Users/danie/Desktop/invoice.csv")
+        else:
+            print("No entries to generate invoice :(")
