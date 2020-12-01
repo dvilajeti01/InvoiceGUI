@@ -13,7 +13,7 @@ class CalendarBlock(tk.Frame):
 
         self.block_id = block_id
 
-        day = block_id.split("_")[2]
+        day = block_id.split("_")[1]
 
         # Defines minimum dimensions for the calendar
         self.rowconfigure(row, weight=1, minsize=BL_HEIGHT)
@@ -26,6 +26,6 @@ class CalendarBlock(tk.Frame):
             self, text=day, fg="black", bg=BG_COLOR)
         self.date_lbl.grid(row=row, column=col, sticky="nw")
 
-        # Label displays hours worked on the day represented by calendar block
-        self.time_lbl = tk.Label(self, text="", bg=BG_COLOR)
-        self.time_lbl.grid(row=row, column=col)
+        # Label indicates if there are any active entries listed for this date
+        self.active_lbl = tk.Label(self, text="", bg=BG_COLOR)
+        self.active_lbl.grid(row=row, column=col)
