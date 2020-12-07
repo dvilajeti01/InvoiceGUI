@@ -6,7 +6,7 @@ class EntryDate(tk.Frame):
         # Call parent init
         tk.Frame.__init__(self, parent, *args, **kwargs)
 
-        self.date_lbl = tk.Label(self, text="Date")
+        self.date_lbl = tk.Label(self, text='Date')
         self.date_lbl.pack(side=tk.LEFT)
 
         self.date_entry = tk.Entry(self, width=10)
@@ -21,4 +21,4 @@ class EntryDate(tk.Frame):
 
     def clear_data(self):
         # Delete the text entered in entry field
-        self.date_entry.delete(0, "end")
+        self.date_entry.delete(0, 'end')

@@ -6,7 +6,7 @@ class EntryFooter(tk.Frame):
         # Call parent init
         tk.Frame.__init__(self, parent, *args, **kwargs)
 
-        self.add_btn = tk.Button(self, text="Add")
+        self.add_btn = tk.Button(self, text='Add')
         self.add_btn.pack(side=tk.TOP, fill=tk.BOTH)
 
-        self.add_btn.bind("<Button-1>", controller.add_entry)
+        self.add_btn.bind('<Button-1>', controller.add_entry)

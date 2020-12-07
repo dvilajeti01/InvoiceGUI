@@ -1,6 +1,6 @@
 import tkinter as tk
 
-DAYS_OF_THE_WEEK = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"]
+DAYS_OF_THE_WEEK = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa']
 
 
 class SecondaryHeader(tk.Frame):

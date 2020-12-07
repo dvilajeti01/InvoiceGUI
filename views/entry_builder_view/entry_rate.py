@@ -6,7 +6,7 @@ class EntryRate(tk.Frame):
         # Call parent init
         tk.Frame.__init__(self, parent, *args, **kwargs)
 
-        self.rate_lbl = tk.Label(self, text="Rate")
+        self.rate_lbl = tk.Label(self, text='Rate')
         self.rate_lbl.pack(side=tk.LEFT)
 
         self.rate_entry = tk.Entry(self)
@@ -18,4 +18,4 @@ class EntryRate(tk.Frame):
 
     def clear_data(self):
         # Delete the text entered in entry field
-        self.rate_entry.delete(0, "end")
+        self.rate_entry.delete(0, 'end')

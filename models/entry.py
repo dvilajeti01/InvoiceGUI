@@ -12,10 +12,10 @@ class Entry:
     def to_dict(self):
 
         return {
-            "Date": self.date,
-            "Description": self.description,
-            "Quantity": self.quantity,
-            "Rate": self.rate
+            'Date': self.date,
+            'Description': self.description,
+            'Quantity': self.quantity,
+            'Rate': self.rate
         }
 
     def to_tuple(self):

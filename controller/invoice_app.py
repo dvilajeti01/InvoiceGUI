@@ -122,7 +122,7 @@ class InvoiceApp(tk.Frame):
 
         if item != ():
             entry_values = self.entries_view.entries_list.entries_lst.item(
-                item, "values")
+                item, 'values')
 
             entry = Entry.from_tuple(entry_values)
             self.entries[self.current_block].remove(entry)
@@ -182,17 +182,17 @@ class InvoiceApp(tk.Frame):
             invoice_frame_sorted = invoice_frame.sort_values(
                 by='date', ascending=True)
 
-            invoice_frame_sorted.loc[:, "amount"] = invoice_frame_sorted["quantity"] * \
-                invoice_frame_sorted["rate"]
+            invoice_frame_sorted.loc[:, 'amount'] = invoice_frame_sorted['quantity'] * \
+                invoice_frame_sorted['rate']
 
-            columns_to_total = ["quantity", "amount"]
-            invoice_frame_sorted.loc["Total", :] = invoice_frame_sorted[columns_to_total].sum(
+            columns_to_total = ['quantity', 'amount']
+            invoice_frame_sorted.loc['Total', :] = invoice_frame_sorted[columns_to_total].sum(
                 axis=0, numeric_only=True)
-            invoice_frame_sorted.fillna("")
+            invoice_frame_sorted.fillna('')
 
             print(invoice_frame_sorted)
             invoice_frame_sorted.to_csv(
-                "/mnt/c/Users/danie/Desktop/invoice.csv")
+                '/mnt/c/Users/danie/Desktop/invoice.csv')
         else:
             print("No entries to generate invoice :(")
 

@@ -59,12 +59,12 @@ class CalendarSection(tk.Frame):
                         col=j,
                         relief=tk.RIDGE,
                         borderwidth=1)
-                    calendar_block.grid(row=i, column=j, sticky="nsew")
+                    calendar_block.grid(row=i, column=j, sticky='nsew')
 
                     # CalendarBlock frame bindings
-                    calendar_block.bind("<Enter>", controller.hover_in)
-                    calendar_block.bind("<Leave>", controller.hover_out)
-                    calendar_block.bind("<Double-Button-1>",
+                    calendar_block.bind('<Enter>', controller.hover_in)
+                    calendar_block.bind('<Leave>', controller.hover_out)
+                    calendar_block.bind('<Double-Button-1>',
                                         controller.enter_entries_view)
 
                     self.blocks[block_id] = calendar_block

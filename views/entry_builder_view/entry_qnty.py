@@ -6,7 +6,7 @@ class EntryQnty(tk.Frame):
         # Call parent init
         tk.Frame.__init__(self, parent, *args, **kwargs)
 
-        self.qnty_lbl = tk.Label(self, text="Quantity")
+        self.qnty_lbl = tk.Label(self, text='Quantity')
         self.qnty_lbl.pack(side=tk.LEFT)
 
         self.qnty_entry = tk.Entry(self)
@@ -18,4 +18,4 @@ class EntryQnty(tk.Frame):
 
     def clear_data(self):
         # Delete the text entered in entry field
-        self.qnty_entry.delete(0, "end")
+        self.qnty_entry.delete(0, 'end')

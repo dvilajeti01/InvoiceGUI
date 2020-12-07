@@ -13,16 +13,16 @@ class EntryBuilderView(tk.Toplevel):
         tk.Toplevel.__init__(self, parent, *args, **kwargs)
 
         self.date_entry = EntryDate(self, controller, date)
-        self.date_entry.pack(side=tk.TOP, anchor="w")
+        self.date_entry.pack(side=tk.TOP, anchor='w')
 
         self.desc_entry = EntryDesc(self, controller)
-        self.desc_entry.pack(side=tk.TOP, anchor="w")
+        self.desc_entry.pack(side=tk.TOP, anchor='w')
 
         self.qnty_entry = EntryQnty(self, controller)
-        self.qnty_entry.pack(side=tk.TOP, anchor="w")
+        self.qnty_entry.pack(side=tk.TOP, anchor='w')
 
         self.rate_entry = EntryRate(self, controller)
-        self.rate_entry.pack(side=tk.TOP, anchor="w")
+        self.rate_entry.pack(side=tk.TOP, anchor='w')
 
         self.entry_footer = EntryFooter(self, controller)
         self.entry_footer.pack(side=tk.TOP)
