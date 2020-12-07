@@ -34,8 +34,7 @@ class InvoiceApp(tk.Frame):
         for block in self.calendar_view.calendar_section.winfo_children():
             try:
                 if len(self.entries[block.block_id]) > 0:
-                    block.active_lbl["fg"] = "Green"
-                    block.active_lbl["text"] = "*"
+                    block.set_state(active=True)
             except KeyError:
                 pass
 
@@ -46,19 +45,13 @@ class InvoiceApp(tk.Frame):
         # Changes background color of calendar block to
         # notify users they are pointing to calendar block
 
-        event.widget["bg"] = "#D7DBDD"
-
-        for child in event.widget.winfo_children():
-            child["bg"] = "#D7DBDD"
+        event.widget.change_background('#D7DBDD')
 
     def hover_out(self, event):
         # Reverts background color of calendar block to
         # notify users they are no longer pointing to calendar block
 
-        event.widget["bg"] = "white"
-
-        for child in event.widget.winfo_children():
-            child["bg"] = "white"
+        event.widget.change_background('#FFFFFF')
 
     def prev_month(self, event):
         self.month = self.month - 1
@@ -79,8 +72,7 @@ class InvoiceApp(tk.Frame):
         for block in self.calendar_view.calendar_section.winfo_children():
             try:
                 if len(self.entries[block.block_id]) > 0:
-                    block.active_lbl["fg"] = "Green"
-                    block.active_lbl["text"] = "*"
+                    block.set_state(active=True)
             except KeyError:
                 pass
 
@@ -100,11 +92,13 @@ class InvoiceApp(tk.Frame):
         self.calendar_view = new_cal_view
         self.calendar_view.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
+        active_dates = self.get_active_dates()
+        self.calendar_view.update_calendar_blocks(active_dates, True)
+
         for block in self.calendar_view.calendar_section.winfo_children():
             try:
                 if len(self.entries[block.block_id]) > 0:
-                    block.active_lbl["fg"] = "Green"
-                    block.active_lbl["text"] = "*"
+                    block.set_state(active=True)
             except KeyError:
                 pass
 
@@ -117,12 +111,11 @@ class InvoiceApp(tk.Frame):
         self.data_entry.grab_set()
 
     def add_entry(self, event):
-        date = self.data_entry.date_entry.date_entry.get()
-        desc = self.data_entry.dsc_entry.desc_entry.get()
-        qnty = self.data_entry.qnty_entry.qnty_entry.get()
-        rate = self.data_entry.rate_entry.rate_entry.get()
 
-        entry = Entry(date, desc, qnty, rate)
+        entry_data = self.data_entry.get_entries()
+
+        entry = Entry.from_tuple(entry_data)
+
         item_num = len(
             self.entries_view.entries_list.entries_lst.get_children())
         try:
@@ -134,10 +127,7 @@ class InvoiceApp(tk.Frame):
         self.entries_view.entries_list.entries_lst.insert(
             '', 'end', text=item_num+1, values=(entry.to_tuple()))
 
-        self.data_entry.date_entry.date_entry.delete(0, "end")
-        self.data_entry.dsc_entry.desc_entry.delete(0, "end")
-        self.data_entry.qnty_entry.qnty_entry.delete(0, "end")
-        self.data_entry.rate_entry.rate_entry.delete(0, "end")
+        self.data_entry.clear_entries()
 
     def delete_entry(self, event):
         item = self.entries_view.entries_list.entries_lst.selection()
@@ -181,8 +171,7 @@ class InvoiceApp(tk.Frame):
         for block in self.calendar_view.calendar_section.winfo_children():
             try:
                 if len(self.entries[block.block_id]) > 0:
-                    block.active_lbl["fg"] = "Green"
-                    block.active_lbl["text"] = "*"
+                    block.set_state(active=True)
             except KeyError:
                 pass
 
@@ -222,3 +211,30 @@ class InvoiceApp(tk.Frame):
                 "/mnt/c/Users/danie/Desktop/invoice.csv")
         else:
             print("No entries to generate invoice :(")
+
+    def get_active_dates(self):
+
+        dates = []
+
+        # Calendar manager
+        calendar_manager = cl.Calendar(firstweekday=6)
+
+        # Generate all dates in a given month and year
+        date_generator = calendar_manager.itermonthdays3(
+            self.year, self.month)
+
+        try:
+            month, day, year = next(date_generator)
+        except StopIteration:
+            if day == 28 or day == 29:
+                day = 1
+                month = month + 1
+            else:
+                day = day + 1
+        finally:
+            date = f"{month}_{day}_{year}"
+
+            if date in self.entries:
+                dates.append(date)
+
+        return dates

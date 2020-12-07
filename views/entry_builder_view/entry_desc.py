@@ -13,3 +13,11 @@ class EntryDesc(tk.Frame):
 
         self.desc_entry = tk.Entry(self, width=WIDTH)
         self.desc_entry.pack(side=tk.LEFT)
+
+    def get_data(self):
+        # Return the text entered in entry field
+        return self.desc_entry.get()
+
+    def clear_data(self):
+        # Delete the text entered in entry field
+        self.desc_entry.delete(0, "end")

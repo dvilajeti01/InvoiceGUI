@@ -14,3 +14,11 @@ class EntryDate(tk.Frame):
         self.date_entry.config(state=tk.DISABLED)
 
         self.date_entry.pack(side=tk.LEFT)
+
+    def get_data(self):
+        # Return the text entered in entry field
+        return self.date_entry.get()
+
+    def clear_data(self):
+        # Delete the text entered in entry field
+        self.date_entry.delete(0, "end")

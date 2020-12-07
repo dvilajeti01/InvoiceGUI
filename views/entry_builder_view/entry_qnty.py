@@ -11,3 +11,11 @@ class EntryQnty(tk.Frame):
 
         self.qnty_entry = tk.Entry(self)
         self.qnty_entry.pack(side=tk.LEFT)
+
+    def get_data(self):
+        # Return the text entered in entry field
+        return self.qnty_entry.get()
+
+    def clear_data(self):
+        # Delete the text entered in entry field
+        self.qnty_entry.delete(0, "end")
