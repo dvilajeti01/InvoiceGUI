@@ -24,3 +24,6 @@ class MainHeader(tk.Frame):
             self, text='>', width=5)
         self.next_month_btn.pack(side=tk.LEFT, fill=tk.BOTH)
         self.next_month_btn.bind('<Button-1>', controller.next_month)
+
+    def update_header(self, month, year):
+        self.header_lbl['text'] = f"{cl.month_name[month]}, {year}"

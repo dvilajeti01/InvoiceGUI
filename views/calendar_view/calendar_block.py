@@ -53,3 +53,7 @@ class CalendarBlock(tk.Frame):
 
             self.active_lbl['fg'] = '#FFFFFF'
             self.active_lbl['text'] = ''
+
+    def change_day(self, day):
+        # Display new date
+        self.date_lbl['text'] = day

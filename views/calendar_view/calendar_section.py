@@ -21,13 +21,13 @@ class CalendarSection(tk.Frame):
         year = year
 
         # Calendar manager
-        calendar_manager = cl.Calendar(firstweekday=FIRST_WEEK_DAY)
+        self.calendar_manager = cl.Calendar(firstweekday=FIRST_WEEK_DAY)
+
+        self.blocks = []
 
         # Generate all dates in a given month and year
-        date_generator = calendar_manager.itermonthdays3(
+        date_generator = self.calendar_manager.itermonthdays3(
             year, month)
-
-        self.blocks = {}
 
         for i in range(ROWS):
             for j in range(COLUMNS):
@@ -39,7 +39,8 @@ class CalendarSection(tk.Frame):
                 try:
                     block_year, block_month, block_day = next(
                         date_generator)
-                except StopIteration:
+                except StopIteration:  # extends the # of dates generated to match the number of blocks
+                    # Accounts for the month of February
                     if block_day == 28 or block_day == 29:
                         block_day = 1
                         block_month = block_month + 1
@@ -67,7 +68,44 @@ class CalendarSection(tk.Frame):
                     calendar_block.bind('<Double-Button-1>',
                                         controller.enter_entries_view)
 
-                    self.blocks[block_id] = calendar_block
+                    self.blocks.append(calendar_block)
 
     def get_calendar_blocks(self):
         return self.blocks
+
+    def update_dates(self, month, year):
+        # Update each block to represent new dates
+        # This includes new ID and reset the state
+
+        # Generate new dates for the new month and year
+        date_generator = self.calendar_manager.itermonthdays3(
+            year, month)
+
+        for block in self.blocks:
+            try:
+                new_year, new_month, new_day = next(
+                    date_generator)
+            except StopIteration:  # extends the # of dates generated to match the number of blocks
+                # Accounts for the month of February
+                if new_day == 28 or new_day == 29:
+                    new_day = 1
+                    new_month = new_month + 1
+                else:
+                    new_day = new_day + 1
+            finally:
+                # Form new ID
+                new_id = f"{new_month}_{new_day}_{new_year}"
+
+                # Assign new ID to block
+                block.block_id = new_id
+
+                # Display new day and set to state to deactive
+                block.change_day(new_day)
+                block.set_state(active=False)
+
+    def update_blocks(self, blocks_to_update, state):
+        # Loops through calendar blocks
+        for block in self.blocks:
+            # Update the state of selected blocks
+            if block.block_id in blocks_to_update:
+                block.set_state(state)

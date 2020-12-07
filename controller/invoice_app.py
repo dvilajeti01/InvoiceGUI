@@ -49,38 +49,34 @@ class InvoiceApp(tk.Frame):
     def prev_month(self, event):
         self.month = self.month - 1
 
+        # Decrements year when going from January to December
         if self.month < 1:
             self.month = 12
             self.year = self.year - 1
 
-        # Build updated calendar view
-        new_cal_view = CalendarView(
-            self, self, self.today, self.month, self.year)
+        self.calendar_view.update_idletasks()
 
-        self.calendar_view.destroy()
+       # Update calendar to display next month's days
+        self.calendar_view.update_calendar(self.month, self.year)
 
-        self.calendar_view = new_cal_view
-        self.calendar_view.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
-
+        # Mark blocks with entries as active
         active_dates = self.get_active_dates()
         self.calendar_view.update_calendar_blocks(active_dates, True)
 
     def next_month(self, event):
         self.month = self.month + 1
 
+        # Increments year when going from December to January
         if self.month > 12:
             self.month = 1
             self.year = self.year + 1
 
-        # Build updated calendar section
-        new_cal_view = CalendarView(
-            self, self, self.today, self.month, self.year)
+        self.calendar_view.update_idletasks()
 
-        self.calendar_view.destroy()
+        # Update calendar to display next month's days
+        self.calendar_view.update_calendar(self.month, self.year)
 
-        self.calendar_view = new_cal_view
-        self.calendar_view.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
-
+        # Mark blocks with entries as active
         active_dates = self.get_active_dates()
         self.calendar_view.update_calendar_blocks(active_dates, True)
 
@@ -126,6 +122,11 @@ class InvoiceApp(tk.Frame):
 
             entry = Entry.from_tuple(entry_values)
             self.entries[self.current_block].remove(entry)
+
+            # If the date no longer has any entries remove from dict
+            if self.entries[self.current_block] == []:
+                del self.entries[self.current_block]
+
             self.entries_view.entries_list.entries_lst.delete(item)
         else:
             print("Nothing to Delete!")
