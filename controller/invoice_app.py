@@ -96,22 +96,28 @@ class InvoiceApp(tk.Frame):
         self.data_entry.grab_set()
 
     def add_entry(self, event):
-
+        # Fetch values entered in entry fields
         entry_data = self.data_entry.get_entries()
 
+        # Initialize Entry object from values
         entry = Entry.from_tuple(entry_data)
 
+        # Get curr length of the list
         item_num = len(
             self.entries_view.entries_list.entries_lst.get_children())
-        try:
-            self.entries[self.current_block]
-        except KeyError:
+
+        # Initialize list of entries for date in dict
+        if self.current_block not in self.entries:
             self.entries[self.current_block] = []
 
+        # Append entry to dict
         self.entries[self.current_block].append(entry)
+
+        # Append entry with incremented item_num to list view
         self.entries_view.entries_list.entries_lst.insert(
             '', 'end', text=item_num+1, values=(entry.to_tuple()))
 
+        # Clear text from entries
         self.data_entry.clear_entries()
 
     def delete_entry(self, event):
@@ -153,15 +159,15 @@ class InvoiceApp(tk.Frame):
         self.calendar_view = CalendarView(
             self, self, self.today, self.month, self.year)
 
-        active_dates = self.get_active_dates()
-        self.calendar_view.update_calendar_blocks(active_dates, True)
-
         # Destroy current entries view
         self.entries_view.destroy()
         self.entries_view = None
 
         # Display calendar view
         self.calendar_view.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+
+        active_dates = self.get_active_dates()
+        self.calendar_view.update_calendar_blocks(active_dates, True)
 
     def generate_invoice(self, event):
         invoice = []
@@ -204,18 +210,19 @@ class InvoiceApp(tk.Frame):
         date_generator = calendar_manager.itermonthdays3(
             self.year, self.month)
 
-        try:
-            month, day, year = next(date_generator)
-        except StopIteration:
-            if day == 28 or day == 29:
-                day = 1
-                month = month + 1
-            else:
-                day = day + 1
-        finally:
-            date = f"{month}_{day}_{year}"
+        for i in range(42):
+            try:
+                year, month, day = next(date_generator)
+            except StopIteration:
+                if day == 28 or day == 29:
+                    day = 1
+                    month = month + 1
+                else:
+                    day = day + 1
+            finally:
+                date = f"{month}_{day}_{year}"
 
-            if date in self.entries:
-                dates.append(date)
+                if date in self.entries:
+                    dates.append(date)
 
         return dates

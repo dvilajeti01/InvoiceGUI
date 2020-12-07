@@ -46,7 +46,7 @@ class CalendarBlock(tk.Frame):
             # this is used to indicate that an entrie exists for this
             # given block
 
-            self.active_lbl['fg'] = 'Green'
+            self.active_lbl['fg'] = '#00FF00'
             self.active_lbl['text'] = '*'
         else:
             # Else revert back to normal
