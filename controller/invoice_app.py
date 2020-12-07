@@ -31,9 +31,6 @@ class InvoiceApp(tk.Frame):
             self, self, self.today, self.today.month, self.today.year)
         self.calendar_view.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
-        active_dates = self.get_active_dates()
-        self.calendar_view.update_calendar_blocks(active_dates, True)
-
         self.entries_view = None
         self.data_entry = None
 
