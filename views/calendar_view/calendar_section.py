@@ -27,11 +27,10 @@ class CalendarSection(tk.Frame):
         date_generator = calendar_manager.itermonthdays3(
             year, month)
 
-        rows = ROWS
-        cols = COLUMNS
+        self.blocks = {}
 
-        for i in range(rows):
-            for j in range(cols):
+        for i in range(ROWS):
+            for j in range(COLUMNS):
 
                 # Allows the frame that contains calendar to expand proportionally
                 self.rowconfigure(i, weight=1)
@@ -67,3 +66,8 @@ class CalendarSection(tk.Frame):
                     calendar_block.bind("<Leave>", controller.hover_out)
                     calendar_block.bind("<Double-Button-1>",
                                         controller.enter_entries_view)
+
+                    self.blocks[block_id] = calendar_block
+
+    def get_calendar_blocks(self):
+        return self.blocks

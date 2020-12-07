@@ -32,3 +32,13 @@ class CalendarView(tk.Frame):
         self.calendar_section = CalendarSection(
             self, controller, month, year)
         self.calendar_section.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+
+    def update_calendar_section(self, month, year):
+        pass
+
+    def update_main_header(self, month, year):
+        pass
+
+    def update_calendar_blocks(self, blocks_to_update, state):
+        for block in blocks_to_update:
+            self.calendar_section.blocks[block].set_state(state)

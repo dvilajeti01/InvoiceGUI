@@ -31,12 +31,8 @@ class InvoiceApp(tk.Frame):
             self, self, self.today, self.today.month, self.today.year)
         self.calendar_view.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
-        for block in self.calendar_view.calendar_section.winfo_children():
-            try:
-                if len(self.entries[block.block_id]) > 0:
-                    block.set_state(active=True)
-            except KeyError:
-                pass
+        active_dates = self.get_active_dates()
+        self.calendar_view.update_calendar_blocks(active_dates, True)
 
         self.entries_view = None
         self.data_entry = None
@@ -69,12 +65,8 @@ class InvoiceApp(tk.Frame):
         self.calendar_view = new_cal_view
         self.calendar_view.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
-        for block in self.calendar_view.calendar_section.winfo_children():
-            try:
-                if len(self.entries[block.block_id]) > 0:
-                    block.set_state(active=True)
-            except KeyError:
-                pass
+        active_dates = self.get_active_dates()
+        self.calendar_view.update_calendar_blocks(active_dates, True)
 
     def next_month(self, event):
         self.month = self.month + 1
@@ -94,13 +86,6 @@ class InvoiceApp(tk.Frame):
 
         active_dates = self.get_active_dates()
         self.calendar_view.update_calendar_blocks(active_dates, True)
-
-        for block in self.calendar_view.calendar_section.winfo_children():
-            try:
-                if len(self.entries[block.block_id]) > 0:
-                    block.set_state(active=True)
-            except KeyError:
-                pass
 
     def new_entry(self, event):
 
@@ -168,12 +153,8 @@ class InvoiceApp(tk.Frame):
         self.calendar_view = CalendarView(
             self, self, self.today, self.month, self.year)
 
-        for block in self.calendar_view.calendar_section.winfo_children():
-            try:
-                if len(self.entries[block.block_id]) > 0:
-                    block.set_state(active=True)
-            except KeyError:
-                pass
+        active_dates = self.get_active_dates()
+        self.calendar_view.update_calendar_blocks(active_dates, True)
 
         # Destroy current entries view
         self.entries_view.destroy()
