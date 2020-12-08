@@ -3,7 +3,7 @@ from tkinter import ttk
 
 
 class EntriesList(tk.Frame):
-    def __init__(self, parent, controller, entries, *args, **kwargs):
+    def __init__(self, parent, controller, *args, **kwargs):
         # Call parent init
         tk.Frame.__init__(self, parent, *args, **kwargs)
 
@@ -30,9 +30,49 @@ class EntriesList(tk.Frame):
 
         self.entries_lst.configure(yscrollcommand=self.entries_scrl.set)
 
-        i = 1
-        if entries is not None:
-            for entry in entries:
-                self.entries_lst.insert(
-                    '', 'end', text=i, values=entry.to_tuple())
-                i = i + 1
+    def load_entries(self, entries):
+        # Index used to number items
+        item_num = 1
+
+        for entry in entries:
+            # Append
+            self.entries_lst.insert(
+                '', 'end', text=item_num, values=entry)
+
+            # Increment item number
+            item_num = item_num + 1
+
+    def append_entry(self, entry):
+        # Next item number
+        item_num = len(self.entries_lst.get_children()) + 1
+
+        # Append entry to list
+        self.entries_lst.insert(
+            '', 'end', text=item_num, values=entry)
+
+    def remove_entry(self, index):
+        # Get the number of the item in the list != ID
+        item_num = self.entries_lst.item(index, 'text')
+
+        # Remove item from the list view
+        self.entries_lst.delete(index)
+
+        # Re-number the items
+        for item in self.entries_lst.get_children():
+            curr_item_num = int(self.entries_lst.item(item, 'text'))
+
+            if curr_item_num > item_num:
+                self.entries_lst.item(item, text=curr_item_num-1)
+
+    def get_selection(self):
+        # Fetch index of selected item
+        selection = self.entries_lst.selection()
+
+        # Return selection index & values if an item is selected
+        if selection:
+            return {
+                'index': selection,
+                'values': self.entries_lst.item(selection, 'values')
+            }
+        else:
+            return None

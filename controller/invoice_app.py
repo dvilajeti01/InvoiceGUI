@@ -37,13 +37,11 @@ class InvoiceApp(tk.Frame):
     def hover_in(self, event):
         # Changes background color of calendar block to
         # notify users they are pointing to calendar block
-
         event.widget.change_background('#D7DBDD')
 
     def hover_out(self, event):
         # Reverts background color of calendar block to
         # notify users they are no longer pointing to calendar block
-
         event.widget.change_background('#FFFFFF')
 
     def prev_month(self, event):
@@ -81,10 +79,13 @@ class InvoiceApp(tk.Frame):
         self.calendar_view.update_calendar_blocks(active_dates, True)
 
     def new_entry(self, event):
-
+        # Convert block id into a valid date
         date = self.current_block.replace('_', '/')
 
+        # Build pop up view to enter entry data
         self.data_entry = EntryBuilderView(self, self, date)
+
+        # Disable parent view while pop up is visible
         self.data_entry.wait_visibility()
         self.data_entry.grab_set()
 
@@ -95,10 +96,6 @@ class InvoiceApp(tk.Frame):
         # Initialize Entry object from values
         entry = Entry.from_tuple(entry_data)
 
-        # Get curr length of the list
-        item_num = len(
-            self.entries_view.entries_list.entries_lst.get_children())
-
         # Initialize list of entries for date in dict
         if self.current_block not in self.entries:
             self.entries[self.current_block] = []
@@ -106,30 +103,29 @@ class InvoiceApp(tk.Frame):
         # Append entry to dict
         self.entries[self.current_block].append(entry)
 
-        # Append entry with incremented item_num to list view
-        self.entries_view.entries_list.entries_lst.insert(
-            '', 'end', text=item_num+1, values=(entry.to_tuple()))
+        # Append entry to list view
+        self.entries_view.append_entry(entry.to_tuple())
 
         # Clear text from entries
         self.data_entry.clear_entries()
 
     def delete_entry(self, event):
-        item = self.entries_view.entries_list.entries_lst.selection()
+        # Get selected item from list
+        selection = self.entries_view.get_selected_entry()
 
-        if item != ():
-            entry_values = self.entries_view.entries_list.entries_lst.item(
-                item, 'values')
+        if selection is not None:
+            # Initialize entry from selection values
+            entry = Entry.from_tuple(selection['values'])
 
-            entry = Entry.from_tuple(entry_values)
+            # Remove entry form list
             self.entries[self.current_block].remove(entry)
 
             # If the date no longer has any entries remove from dict
             if self.entries[self.current_block] == []:
                 del self.entries[self.current_block]
 
-            self.entries_view.entries_list.entries_lst.delete(item)
-        else:
-            print("Nothing to Delete!")
+            # Remove entry from list view
+            self.entries_view.remove_entry(selection['index'])
 
     def enter_entries_view(self, event):
 
@@ -138,7 +134,12 @@ class InvoiceApp(tk.Frame):
 
         # Create entries view
         try:
-            self.entries_view = EntriesView(self, self, self.entries[block_id])
+            entries_to_load = []
+
+            for entry in self.entries[self.current_block]:
+                entries_to_load.append(entry.to_tuple())
+
+            self.entries_view = EntriesView(self, self, entries_to_load)
         except KeyError:
             self.entries_view = EntriesView(self, self, [])
 
