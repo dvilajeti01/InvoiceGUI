@@ -182,12 +182,12 @@ class InvoiceApp(tk.Frame):
             invoice_frame = pd.read_json(invoiceJOSNData)
 
             invoice_frame_sorted = invoice_frame.sort_values(
-                by='date', ascending=True)
+                by='Date', ascending=True)
 
-            invoice_frame_sorted.loc[:, 'amount'] = invoice_frame_sorted['quantity'] * \
-                invoice_frame_sorted['rate']
+            invoice_frame_sorted.loc[:, 'Amount'] = invoice_frame_sorted['Quantity'] * \
+                invoice_frame_sorted['Rate']
 
-            columns_to_total = ['quantity', 'amount']
+            columns_to_total = ['Quantity', 'Amount']
             invoice_frame_sorted.loc['Total', :] = invoice_frame_sorted[columns_to_total].sum(
                 axis=0, numeric_only=True)
             invoice_frame_sorted.fillna('')
