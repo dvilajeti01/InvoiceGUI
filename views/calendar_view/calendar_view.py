@@ -32,3 +32,14 @@ class CalendarView(tk.Frame):
         self.calendar_section = CalendarSection(
             self, controller, month, year)
         self.calendar_section.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+
+    def update_calendar(self, month, year):
+        # Update header to display correct month and year
+        self.main_header.update_header(month, year)
+
+        # Update calendar section to display correct dates
+        self.calendar_section.update_dates(month, year)
+
+    def update_calendar_blocks(self, blocks_to_update, state):
+        # Updates specific blocks to either active or deactive
+        self.calendar_section.update_blocks(blocks_to_update, state)

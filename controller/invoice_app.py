@@ -31,126 +31,101 @@ class InvoiceApp(tk.Frame):
             self, self, self.today, self.today.month, self.today.year)
         self.calendar_view.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
-        for block in self.calendar_view.calendar_section.winfo_children():
-            try:
-                if len(self.entries[block.block_id]) > 0:
-                    block.active_lbl["fg"] = "Green"
-                    block.active_lbl["text"] = "*"
-            except KeyError:
-                pass
-
         self.entries_view = None
         self.data_entry = None
 
     def hover_in(self, event):
         # Changes background color of calendar block to
         # notify users they are pointing to calendar block
-
-        event.widget["bg"] = "#D7DBDD"
-
-        for child in event.widget.winfo_children():
-            child["bg"] = "#D7DBDD"
+        event.widget.change_background('#D7DBDD')
 
     def hover_out(self, event):
         # Reverts background color of calendar block to
         # notify users they are no longer pointing to calendar block
-
-        event.widget["bg"] = "white"
-
-        for child in event.widget.winfo_children():
-            child["bg"] = "white"
+        event.widget.change_background('#FFFFFF')
 
     def prev_month(self, event):
         self.month = self.month - 1
 
+        # Decrements year when going from January to December
         if self.month < 1:
             self.month = 12
             self.year = self.year - 1
 
-        # Build updated calendar view
-        new_cal_view = CalendarView(
-            self, self, self.today, self.month, self.year)
+        self.calendar_view.update_idletasks()
 
-        self.calendar_view.destroy()
+       # Update calendar to display next month's days
+        self.calendar_view.update_calendar(self.month, self.year)
 
-        self.calendar_view = new_cal_view
-        self.calendar_view.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
-
-        for block in self.calendar_view.calendar_section.winfo_children():
-            try:
-                if len(self.entries[block.block_id]) > 0:
-                    block.active_lbl["fg"] = "Green"
-                    block.active_lbl["text"] = "*"
-            except KeyError:
-                pass
+        # Mark blocks with entries as active
+        active_dates = self.get_active_dates()
+        self.calendar_view.update_calendar_blocks(active_dates, True)
 
     def next_month(self, event):
         self.month = self.month + 1
 
+        # Increments year when going from December to January
         if self.month > 12:
             self.month = 1
             self.year = self.year + 1
 
-        # Build updated calendar section
-        new_cal_view = CalendarView(
-            self, self, self.today, self.month, self.year)
+        self.calendar_view.update_idletasks()
 
-        self.calendar_view.destroy()
+        # Update calendar to display next month's days
+        self.calendar_view.update_calendar(self.month, self.year)
 
-        self.calendar_view = new_cal_view
-        self.calendar_view.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
-
-        for block in self.calendar_view.calendar_section.winfo_children():
-            try:
-                if len(self.entries[block.block_id]) > 0:
-                    block.active_lbl["fg"] = "Green"
-                    block.active_lbl["text"] = "*"
-            except KeyError:
-                pass
+        # Mark blocks with entries as active
+        active_dates = self.get_active_dates()
+        self.calendar_view.update_calendar_blocks(active_dates, True)
 
     def new_entry(self, event):
-
+        # Convert block id into a valid date
         date = self.current_block.replace('_', '/')
 
+        # Build pop up view to enter entry data
         self.data_entry = EntryBuilderView(self, self, date)
+
+        # Disable parent view while pop up is visible
         self.data_entry.wait_visibility()
         self.data_entry.grab_set()
 
     def add_entry(self, event):
-        date = self.data_entry.date_entry.date_entry.get()
-        desc = self.data_entry.dsc_entry.desc_entry.get()
-        qnty = self.data_entry.qnty_entry.qnty_entry.get()
-        rate = self.data_entry.rate_entry.rate_entry.get()
+        # Fetch values entered in entry fields
+        entry_data = self.data_entry.get_entries()
 
-        entry = Entry(date, desc, qnty, rate)
-        item_num = len(
-            self.entries_view.entries_list.entries_lst.get_children())
-        try:
-            self.entries[self.current_block]
-        except KeyError:
+        # Initialize Entry object from values
+        entry = Entry.from_tuple(entry_data)
+
+        # Initialize list of entries for date in dict
+        if self.current_block not in self.entries:
             self.entries[self.current_block] = []
 
+        # Append entry to dict
         self.entries[self.current_block].append(entry)
-        self.entries_view.entries_list.entries_lst.insert(
-            '', 'end', text=item_num+1, values=(entry.to_tuple()))
 
-        self.data_entry.date_entry.date_entry.delete(0, "end")
-        self.data_entry.dsc_entry.desc_entry.delete(0, "end")
-        self.data_entry.qnty_entry.qnty_entry.delete(0, "end")
-        self.data_entry.rate_entry.rate_entry.delete(0, "end")
+        # Append entry to list view
+        self.entries_view.append_entry(entry.to_tuple())
+
+        # Clear text from entries
+        self.data_entry.clear_entries()
 
     def delete_entry(self, event):
-        item = self.entries_view.entries_list.entries_lst.selection()
+        # Get selected item from list
+        selection = self.entries_view.get_selected_entry()
 
-        if item != ():
-            entry_values = self.entries_view.entries_list.entries_lst.item(
-                item, "values")
+        if selection is not None:
+            # Initialize entry from selection values
+            entry = Entry.from_tuple(selection['values'])
 
-            entry = Entry.from_tuple(entry_values)
+            # Remove entry form list
             self.entries[self.current_block].remove(entry)
-            self.entries_view.entries_list.entries_lst.delete(item)
-        else:
-            print("Nothing to Delete!")
+
+            # If the date no longer has any entries remove from dict
+            if self.entries[self.current_block] == []:
+                del self.entries[self.current_block]
+
+            # Remove entry from list view
+            self.entries_view.remove_entry(selection['index'])
 
     def enter_entries_view(self, event):
 
@@ -159,7 +134,12 @@ class InvoiceApp(tk.Frame):
 
         # Create entries view
         try:
-            self.entries_view = EntriesView(self, self, self.entries[block_id])
+            entries_to_load = []
+
+            for entry in self.entries[self.current_block]:
+                entries_to_load.append(entry.to_tuple())
+
+            self.entries_view = EntriesView(self, self, entries_to_load)
         except KeyError:
             self.entries_view = EntriesView(self, self, [])
 
@@ -178,20 +158,15 @@ class InvoiceApp(tk.Frame):
         self.calendar_view = CalendarView(
             self, self, self.today, self.month, self.year)
 
-        for block in self.calendar_view.calendar_section.winfo_children():
-            try:
-                if len(self.entries[block.block_id]) > 0:
-                    block.active_lbl["fg"] = "Green"
-                    block.active_lbl["text"] = "*"
-            except KeyError:
-                pass
-
         # Destroy current entries view
         self.entries_view.destroy()
         self.entries_view = None
 
         # Display calendar view
         self.calendar_view.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+
+        active_dates = self.get_active_dates()
+        self.calendar_view.update_calendar_blocks(active_dates, True)
 
     def generate_invoice(self, event):
         invoice = []
@@ -207,18 +182,46 @@ class InvoiceApp(tk.Frame):
             invoice_frame = pd.read_json(invoiceJOSNData)
 
             invoice_frame_sorted = invoice_frame.sort_values(
-                by='date', ascending=True)
+                by='Date', ascending=True)
 
-            invoice_frame_sorted.loc[:, "amount"] = invoice_frame_sorted["quantity"] * \
-                invoice_frame_sorted["rate"]
+            invoice_frame_sorted.loc[:, 'Amount'] = invoice_frame_sorted['Quantity'] * \
+                invoice_frame_sorted['Rate']
 
-            columns_to_total = ["quantity", "amount"]
-            invoice_frame_sorted.loc["Total", :] = invoice_frame_sorted[columns_to_total].sum(
+            columns_to_total = ['Quantity', 'Amount']
+            invoice_frame_sorted.loc['Total', :] = invoice_frame_sorted[columns_to_total].sum(
                 axis=0, numeric_only=True)
-            invoice_frame_sorted.fillna("")
+            invoice_frame_sorted.fillna('')
 
             print(invoice_frame_sorted)
             invoice_frame_sorted.to_csv(
-                "/mnt/c/Users/danie/Desktop/invoice.csv")
+                '/mnt/c/Users/danie/Desktop/invoice.csv')
         else:
             print("No entries to generate invoice :(")
+
+    def get_active_dates(self):
+
+        dates = []
+
+        # Calendar manager
+        calendar_manager = cl.Calendar(firstweekday=6)
+
+        # Generate all dates in a given month and year
+        date_generator = calendar_manager.itermonthdays3(
+            self.year, self.month)
+
+        for i in range(42):
+            try:
+                year, month, day = next(date_generator)
+            except StopIteration:
+                if day == 28 or day == 29:
+                    day = 1
+                    month = month + 1
+                else:
+                    day = day + 1
+            finally:
+                date = f"{month}_{day}_{year}"
+
+                if date in self.entries:
+                    dates.append(date)
+
+        return dates

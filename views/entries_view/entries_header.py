@@ -1,7 +1,7 @@
 import tkinter as tk
 
-TITLE_FONT = ("Helvetica", 20, "bold")
-HEADER_TITLE = "Entries"
+TITLE_FONT = ('Helvetica', 20, 'bold')
+HEADER_TITLE = 'Entries'
 
 
 class EntriesHeader(tk.Frame):

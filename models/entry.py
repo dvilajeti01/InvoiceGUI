@@ -10,20 +10,21 @@ class Entry:
         self.rate = rate
 
     def to_dict(self):
-
+        # Returns contents of the object in form of a Dict
         return {
-            "Date": self.date,
-            "Description": self.description,
-            "Quantity": self.quantity,
-            "Rate": self.rate
+            'Date': self.date,
+            'Description': self.description,
+            'Quantity': self.quantity,
+            'Rate': self.rate
         }
 
     def to_tuple(self):
-
+        # Returns contents of the object in form of a Tuple
         return (self.date, self.description, self.quantity, self.rate)
 
     @staticmethod
     def from_tuple(values):
+        # Returns an entry object from Tuple values
         date, description, quantity, rate = values
 
         return Entry(date, description, quantity, rate)
@@ -40,4 +41,9 @@ class Entry:
 
 class EntryEncoder(JSONEncoder):
     def default(self, o):
-        return o.__dict__
+        return {
+            'Date': o.date,
+            'Description': o.description,
+            'Quantity': o.quantity,
+            'Rate': o.rate
+        }
