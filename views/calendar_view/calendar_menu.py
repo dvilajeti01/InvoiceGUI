@@ -22,3 +22,5 @@ class CalendarMenu(tk.Frame):
             self, text='Settings', relief=tk.RAISED)
         self.settings_btn.pack(
             side=tk.BOTTOM, fill=tk.X)
+
+        self.settings_btn.bind('<Button-1>', controller.enter_settings_view)
