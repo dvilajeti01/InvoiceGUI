@@ -1,12 +1,15 @@
+import os
+import json
+
 import tkinter as tk
 from datetime import datetime
 import calendar as cl
 import pandas as pd
-import json
 
 from views.calendar_view.calendar_view import CalendarView
 from views.entries_view.entries_view import EntriesView
 from views.entry_builder_view.entry_builder_view import EntryBuilderView
+from views.settings_view.settings_view import SettingsView
 
 from models.entry import Entry, EntryEncoder
 
@@ -22,17 +25,20 @@ class InvoiceApp(tk.Frame):
         self.month = self.today.month
         self.year = self.today.year
 
-        self.current_block = None
-
         self.entries = {}
 
         # CalendarView displaying todays date
         self.calendar_view = CalendarView(
             self, self, self.today, self.today.month, self.today.year)
-        self.calendar_view.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+        self.current_view = self.calendar_view
+
+        self.current_view.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
         self.entries_view = None
         self.data_entry = None
+        self.settings_view = None
+
+        self.current_block = None
 
     def hover_in(self, event):
         # Changes background color of calendar block to
@@ -144,26 +150,29 @@ class InvoiceApp(tk.Frame):
             self.entries_view = EntriesView(self, self, [])
 
         # Destroy current calendar view
-        self.calendar_view.destroy()
-        self.calendar_view = None
+        self.current_view.destroy()
+        self.current_view = None
 
         # Display entries view
-        self.entries_view.pack(
+        self.current_view = self.entries_view
+        self.current_view.pack(
             side=tk.TOP, fill=tk.BOTH, expand=True)
 
     def return_to_calendar(self, event):
 
         self.current_block = None
+
         # Create calendar view
         self.calendar_view = CalendarView(
             self, self, self.today, self.month, self.year)
 
-        # Destroy current entries view
-        self.entries_view.destroy()
+        # Destroy current displayed view
+        self.current_view.destroy()
         self.entries_view = None
 
         # Display calendar view
-        self.calendar_view.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+        self.current_view = self.calendar_view
+        self.current_view.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
         active_dates = self.get_active_dates()
         self.calendar_view.update_calendar_blocks(active_dates, True)
@@ -198,6 +207,23 @@ class InvoiceApp(tk.Frame):
         else:
             print("No entries to generate invoice :(")
 
+    def enter_settings_view(self, event):
+        # Create settings view
+        self.settings_view = SettingsView(self, self)
+
+        # Destroy current calendar view
+        self.calendar_view.destroy()
+        self.calendar_view = None
+
+        # Display entries view
+        self. current_view = self.settings_view
+
+        # Load last used settings if any
+        self.read_settings()
+
+        self.current_view.pack(
+            side=tk.TOP, fill=tk.BOTH, expand=True)
+
     def get_active_dates(self):
 
         dates = []
@@ -225,3 +251,31 @@ class InvoiceApp(tk.Frame):
                     dates.append(date)
 
         return dates
+
+    def save_settings(self, event):
+
+        # Get sender/recipient info
+        sender = self.settings_view.get_sender()
+        recipient = self.settings_view.get_recipient()
+
+        # Build mailing info dict
+        mail_info = {
+            'sender': sender,
+            'recipient': recipient
+        }
+
+        # Write to json file to retrieve later
+        with open('mail_info.json', 'w') as file:
+            json.dump(mail_info, file, indent=4)
+
+    def read_settings(self):
+
+        if os.path.exists('./mail_info.json'):
+            # read from json data
+            with open('mail_info.json') as file:
+                mail_info = json.load(file)
+
+                self.settings_view.set_sender(mail_info['sender'])
+                self.settings_view.set_recipient(mail_info['recipient'])
+        else:
+            print('no settings available')
