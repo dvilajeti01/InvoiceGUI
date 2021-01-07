@@ -10,12 +10,13 @@ class CalendarMenu(tk.Frame):
         self.clear_btn = tk.Button(
             self, text='Clear')
         self.clear_btn.pack(side=tk.TOP, fill=tk.X)
+        self.clear_btn.bind('<Button-1>', controller.clear_entries)
 
         # Button to generate invoice
         self.generate_btn = tk.Button(
             self, text='Generate', relief=tk.RAISED, fg='green')
         self.generate_btn.pack(side=tk.TOP, fill=tk.X)
-        self.generate_btn.bind('<Button-1>', controller.generate_invoice)
+        self.generate_btn.bind('<Button-1>', controller.enter_invoice_builder)
 
         # Button to set invoice generating settings
         self.settings_btn = tk.Button(
