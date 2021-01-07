@@ -87,23 +87,35 @@ class Invoice:
         pdfkit.from_file(input=file_name + '.html', output_path=file_name +
                          '.pdf')
 
-    def generate_invoice(self, file_name='invoice'):
+    def generate_invoice(self, due_date, file_name='invoice'):
 
+        # Set due_date and date for the invoice
+        self.due_date = due_date
         self.date = dt.today().strftime('%m/%d/%Y')
 
+        # Copy the dataframe as not to alter main copy
         final_invoice = self.entries
 
+        # Format each date as a DateTime object for sorting
         for index, row in final_invoice.iterrows():
             row['Date'] = dt.strptime(row['Date'], '%m/%d/%Y')
 
+        # Sort entries by date
         final_invoice = final_invoice.sort_values(by='Date', ascending=True)
         final_invoice = final_invoice.sort_index()
 
+        # Produce invoice totals
         COLUMNS_TO_TOTAL = ['Quantity', 'Amount']
         final_invoice.loc['Total', :] = final_invoice[COLUMNS_TO_TOTAL].sum(
             axis=0, numeric_only=True)
 
+        # Replace nan values to blanks
         final_invoice = final_invoice.fillna(' ')
 
+        # Produce final HTML and PDF files
         self.to_html(final_invoice, file_name)
         self.to_pdf(file_name)
+
+    def clear_entries(self):
+        # clear invoice entries
+        self.entries = pd.DataFrame(columns=COLUMNS)

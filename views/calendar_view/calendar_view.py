@@ -40,6 +40,6 @@ class CalendarView(tk.Frame):
         # Update calendar section to display correct dates
         self.calendar_section.update_dates(month, year)
 
-    def update_calendar_blocks(self, blocks_to_update, state):
+    def update_calendar_blocks(self, blocks_to_update):
         # Updates specific blocks to either active or deactive
-        self.calendar_section.update_blocks(blocks_to_update, state)
+        self.calendar_section.update_blocks(blocks_to_update)

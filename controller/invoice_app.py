@@ -10,6 +10,7 @@ from views.calendar_view.calendar_view import CalendarView
 from views.entries_view.entries_view import EntriesView
 from views.entry_builder_view.entry_builder_view import EntryBuilderView
 from views.settings_view.settings_view import SettingsView
+from views.invoice_builder_view.invoice_builder_view import InvoiceBuilderView
 
 from models.entry import Entry, EntryEncoder
 from models.invoice import Invoice
@@ -40,6 +41,7 @@ class InvoiceApp(tk.Frame):
         self.entries_view = None
         self.data_entry = None
         self.settings_view = None
+        self.invoice_builder = None
 
         # Load last used settings if any
         self.read_settings()
@@ -71,7 +73,7 @@ class InvoiceApp(tk.Frame):
 
         # Mark blocks with entries as active
         active_dates = self.get_active_dates()
-        self.calendar_view.update_calendar_blocks(active_dates, True)
+        self.calendar_view.update_calendar_blocks(active_dates)
 
     def next_month(self, event):
         self.month = self.month + 1
@@ -88,7 +90,7 @@ class InvoiceApp(tk.Frame):
 
         # Mark blocks with entries as active
         active_dates = self.get_active_dates()
-        self.calendar_view.update_calendar_blocks(active_dates, True)
+        self.calendar_view.update_calendar_blocks(active_dates)
 
     def new_entry(self, event):
         # Convert block id into a valid date
@@ -171,11 +173,17 @@ class InvoiceApp(tk.Frame):
         self.current_view.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
         active_dates = self.get_active_dates()
-        self.calendar_view.update_calendar_blocks(active_dates, True)
+        self.calendar_view.update_calendar_blocks(active_dates)
 
     def generate_invoice(self, event):
-        self.invoice.generate_invoice(
-            file_name='/mnt/c/Users/danie/OneDrive/Desktop/invoice')
+
+        due_date = self.invoice_builder.get_due_date()
+        file_name = self.invoice_builder.get_file_name()
+
+        self.invoice.generate_invoice(due_date=due_date,
+                                      file_name=file_name)
+
+        self.invoice_builder.destroy()
 
     def enter_settings_view(self, event):
         # Create settings view
@@ -193,6 +201,14 @@ class InvoiceApp(tk.Frame):
 
         self.current_view.pack(
             side=tk.TOP, fill=tk.BOTH, expand=True)
+
+    def enter_invoice_builder(self, event):
+        # Build pop up view to enter entry data
+        self.invoice_builder = InvoiceBuilderView(self, self)
+
+        # Disable parent view while pop up is visible
+        self.invoice_builder.wait_visibility()
+        self.invoice_builder.grab_set()
 
     def get_active_dates(self):
 
@@ -260,3 +276,10 @@ class InvoiceApp(tk.Frame):
                     mail_info['recipient'])
         else:
             print('no settings available')
+
+    def clear_entries(self, event):
+        # Clear all entries
+        self.invoice.clear_entries()
+
+        active_dates = self.get_active_dates()
+        self.calendar_view.update_calendar_blocks(active_dates)

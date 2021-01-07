@@ -103,9 +103,11 @@ class CalendarSection(tk.Frame):
                 block.change_day(new_day)
                 block.set_state(active=False)
 
-    def update_blocks(self, blocks_to_update, state):
+    def update_blocks(self, blocks_to_update):
         # Loops through calendar blocks
         for block in self.blocks:
             # Update the state of selected blocks
             if block.block_id in blocks_to_update:
-                block.set_state(state)
+                block.set_state(True)
+            else:
+                block.set_state(False)
