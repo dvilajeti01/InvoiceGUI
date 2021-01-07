@@ -12,6 +12,8 @@ from views.entry_builder_view.entry_builder_view import EntryBuilderView
 from views.settings_view.settings_view import SettingsView
 
 from models.entry import Entry, EntryEncoder
+from models.invoice import Invoice
+from models.mail_info import MailInfo
 
 
 class InvoiceApp(tk.Frame):
@@ -25,7 +27,8 @@ class InvoiceApp(tk.Frame):
         self.month = self.today.month
         self.year = self.today.year
 
-        self.entries = {}
+        # Initialize an empty invoice
+        self.invoice = Invoice()
 
         # CalendarView displaying todays date
         self.calendar_view = CalendarView(
@@ -37,6 +40,9 @@ class InvoiceApp(tk.Frame):
         self.entries_view = None
         self.data_entry = None
         self.settings_view = None
+
+        # Load last used settings if any
+        self.read_settings()
 
         self.current_block = None
 
@@ -60,7 +66,7 @@ class InvoiceApp(tk.Frame):
 
         self.calendar_view.update_idletasks()
 
-       # Update calendar to display next month's days
+        # Update calendar to display next month's days
         self.calendar_view.update_calendar(self.month, self.year)
 
         # Mark blocks with entries as active
@@ -102,15 +108,11 @@ class InvoiceApp(tk.Frame):
         # Initialize Entry object from values
         entry = Entry.from_tuple(entry_data)
 
-        # Initialize list of entries for date in dict
-        if self.current_block not in self.entries:
-            self.entries[self.current_block] = []
-
-        # Append entry to dict
-        self.entries[self.current_block].append(entry)
+        # Append entry to invoice
+        self.invoice.append_entry(entry)
 
         # Append entry to list view
-        self.entries_view.append_entry(entry.to_tuple())
+        self.entries_view.append_entry(entry.to_list())
 
         # Clear text from entries
         self.data_entry.clear_entries()
@@ -123,12 +125,8 @@ class InvoiceApp(tk.Frame):
             # Initialize entry from selection values
             entry = Entry.from_tuple(selection['values'])
 
-            # Remove entry form list
-            self.entries[self.current_block].remove(entry)
-
-            # If the date no longer has any entries remove from dict
-            if self.entries[self.current_block] == []:
-                del self.entries[self.current_block]
+            # Remove entry form invoice
+            self.invoice.remove_entry(entry)
 
             # Remove entry from list view
             self.entries_view.remove_entry(selection['index'])
@@ -139,15 +137,13 @@ class InvoiceApp(tk.Frame):
         self.current_block = block_id
 
         # Create entries view
-        try:
-            entries_to_load = []
+        self.entries_view = EntriesView(self, self, [])
 
-            for entry in self.entries[self.current_block]:
-                entries_to_load.append(entry.to_tuple())
+        entries_to_load = self.invoice.get_entries(self.current_block)
 
-            self.entries_view = EntriesView(self, self, entries_to_load)
-        except KeyError:
-            self.entries_view = EntriesView(self, self, [])
+        # Load entries into view
+        for entry in entries_to_load:
+            self.entries_view.append_entry(entry)
 
         # Destroy current calendar view
         self.current_view.destroy()
@@ -178,34 +174,8 @@ class InvoiceApp(tk.Frame):
         self.calendar_view.update_calendar_blocks(active_dates, True)
 
     def generate_invoice(self, event):
-        invoice = []
-
-        for block in self.entries:
-            for entry in self.entries[block]:
-                invoice.append(entry)
-
-        if invoice:
-            invoiceJOSNData = json.dumps(invoice, indent=4, cls=EntryEncoder)
-            print(invoiceJOSNData)
-
-            invoice_frame = pd.read_json(invoiceJOSNData)
-
-            invoice_frame_sorted = invoice_frame.sort_values(
-                by='Date', ascending=True)
-
-            invoice_frame_sorted.loc[:, 'Amount'] = invoice_frame_sorted['Quantity'] * \
-                invoice_frame_sorted['Rate']
-
-            columns_to_total = ['Quantity', 'Amount']
-            invoice_frame_sorted.loc['Total', :] = invoice_frame_sorted[columns_to_total].sum(
-                axis=0, numeric_only=True)
-            invoice_frame_sorted.fillna('')
-
-            print(invoice_frame_sorted)
-            invoice_frame_sorted.to_csv(
-                '/mnt/c/Users/danie/Desktop/invoice.csv')
-        else:
-            print("No entries to generate invoice :(")
+        self.invoice.generate_invoice(
+            file_name='/mnt/c/Users/danie/OneDrive/Desktop/invoice')
 
     def enter_settings_view(self, event):
         # Create settings view
@@ -245,9 +215,9 @@ class InvoiceApp(tk.Frame):
                 else:
                     day = day + 1
             finally:
-                date = f"{month}_{day}_{year}"
+                date = f"{month}/{day}/{year}"
 
-                if date in self.entries:
+                if self.invoice.has_date(date):
                     dates.append(date)
 
         return dates
@@ -258,7 +228,7 @@ class InvoiceApp(tk.Frame):
         sender = self.settings_view.get_sender()
         recipient = self.settings_view.get_recipient()
 
-        # Build mailing info dict
+        # Build mailing info dict to parse as json
         mail_info = {
             'sender': sender,
             'recipient': recipient
@@ -268,6 +238,10 @@ class InvoiceApp(tk.Frame):
         with open('mail_info.json', 'w') as file:
             json.dump(mail_info, file, indent=4)
 
+        # Set mail info for invoice
+        self.invoice.sender = MailInfo.from_dict(sender)
+        self.invoice.recipient = MailInfo.from_dict(recipient)
+
     def read_settings(self):
 
         if os.path.exists('./mail_info.json'):
@@ -275,7 +249,14 @@ class InvoiceApp(tk.Frame):
             with open('mail_info.json') as file:
                 mail_info = json.load(file)
 
-                self.settings_view.set_sender(mail_info['sender'])
-                self.settings_view.set_recipient(mail_info['recipient'])
+                if self.settings_view is not None:
+
+                    self.settings_view.set_sender(mail_info['sender'])
+                    self.settings_view.set_recipient(mail_info['recipient'])
+
+                # Set mail info for invoice
+                self.invoice.sender = MailInfo.from_dict(mail_info['sender'])
+                self.invoice.recipient = MailInfo.from_dict(
+                    mail_info['recipient'])
         else:
             print('no settings available')
