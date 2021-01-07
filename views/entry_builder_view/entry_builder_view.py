@@ -31,11 +31,12 @@ class EntryBuilderView(tk.Toplevel):
         # Fetch the data from each entry field
         date = self.date_entry.get_data()
         desc = self.desc_entry.get_data()
-        qnty = self.qnty_entry.get_data()
-        rate = self.rate_entry.get_data()
+        qnty = float(self.qnty_entry.get_data())
+        rate = float(self.rate_entry.get_data())
+        amount = qnty * rate
 
         # Return data in form of a tuple
-        return (date, desc, qnty, rate)
+        return (date, desc, qnty, rate, amount)
 
     def clear_entries(self):
         # Clear text from each entry field

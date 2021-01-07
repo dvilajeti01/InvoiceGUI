@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <style>
+        #header {
+            overflow: hidden;
+        }
+
+        #invoice-number {
+            float: left;
+        }
+
+        #invoice-date-info {
+            float: right;
+        }
+
+        #mailing-info {
+            overflow: hidden;
+        }
+
+        #recipient {
+            float: left;
+        }
+
+        #sender {
+            float: right;
+        }
+
+        #invoice-entries {
+            padding: 30px;
+        }
+
+        table {
+            font-family: arial, sans-serif;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        td,
+        th {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+        }
+
+        tr:nth-child(even) {
+            background-color: #dddddd;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="header">
+        <div id="invoice-number">
+            <h2>Invoice</h2>
+        </div>
+        <div id="invoice-date-info">
+            <div>Invoice Date: {{ invoice_date }}</div>
+            <div>Due Date: {{ invoice_due_date }}</div>
+        </div>
+    </div>
+    <div id="mailing-info">
+        <div id="recipient">
+            <h4>Invoice For:</h4>
+            <div class="name">{{ recipient.name }}</div>
+            <div class="address-1">{{ recipient.address }}</div>
+            <div class="address-2">
+                <span class="city">{{ recipient.city }}</span>, <span class="state">{{ sender.state }}</span> <span
+                    class="zipcode">{{ recipient.zipcode }}</span>
+            </div>
+        </div>
+        <div id="sender">
+            <h4>From:</h4>
+            <div class="name">{{ sender.name }}</div>
+            <div class="address-1">{{ sender.address }}</div>
+            <div class="address-2">
+                <span class="city">{{ sender.city }}</span>, <span class="state">{{ sender.state }}</span> <span
+                    class="zipcode">{{ sender.zipcode }}</span>
+            </div>
+        </div>
+    </div>
+    <div id=invoice-entries>
+        {{ df }}
+    </div>
+</body>
+
+</html>

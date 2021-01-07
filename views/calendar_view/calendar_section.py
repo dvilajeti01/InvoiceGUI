@@ -50,7 +50,7 @@ class CalendarSection(tk.Frame):
                     # Each block is to be identified by a unique ID
                     # The ID is made up by the year,month, and day
                     # delimited by '_'
-                    block_id = f"{block_month}_{block_day}_{block_year}"
+                    block_id = f"{block_month}/{block_day}/{block_year}"
 
                     calendar_block = CalendarBlock(
                         self,
@@ -94,7 +94,7 @@ class CalendarSection(tk.Frame):
                     new_day = new_day + 1
             finally:
                 # Form new ID
-                new_id = f"{new_month}_{new_day}_{new_year}"
+                new_id = f"{new_month}/{new_day}/{new_year}"
 
                 # Assign new ID to block
                 block.block_id = new_id

@@ -13,7 +13,7 @@ class CalendarBlock(tk.Frame):
 
         self.block_id = block_id
 
-        day = block_id.split("_")[1]
+        day = block_id.split("/")[1]
 
         # Defines minimum dimensions for the calendar
         self.rowconfigure(row, weight=1, minsize=BL_HEIGHT)
